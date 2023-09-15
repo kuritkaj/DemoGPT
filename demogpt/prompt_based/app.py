@@ -29,8 +29,7 @@ def main():
         Yields:
             dict: A dictionary containing response information.
         """
-        for data in agent(txt, num_of_iterations):
-            yield data
+        yield from agent(txt, num_of_iterations)
 
     # Page title
     title = "🧩 DemoGPT"
@@ -98,7 +97,7 @@ def main():
                 streamlit_agent = StreamlitModel(openai_api_key=openai_api_key)
 
                 if st.session_state["pid"] != -1:
-                    logging.info(f"Terminating the previous applicaton ...")
+                    logging.info("Terminating the previous applicaton ...")
                     os.kill(st.session_state["pid"], signal.SIGTERM)
                     st.session_state["pid"] = -1
 

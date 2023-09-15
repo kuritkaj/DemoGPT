@@ -138,18 +138,16 @@ class TaskChains:
         argument = task["input_key"]
         variable = task["output_key"]
         code =f'{variable} = "\".join([doc.page_content for doc in {argument}])'
-        code = f"""
+        return f"""
 from langchain.docstore.document import Document
 {variable} =  [Document(page_content={argument}, metadata={{'source': 'local'}})]
         """
-        return code
     
     @classmethod
     def docToString(cls, task, code_snippets):
         argument = task["input_key"]
         variable = task["output_key"]
-        code =f'{variable} = "\".join([doc.page_content for doc in {argument}])'
-        return code
+        return f'{variable} = "\".join([doc.page_content for doc in {argument}])'
     
     @classmethod
     def summarize(cls, task,code_snippets):
@@ -157,7 +155,7 @@ from langchain.docstore.document import Document
         variable = task["output_key"]
         function_name = task["task_name"]
 
-        code = f"""
+        return f"""
 from langchain.chat_models import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
 def {function_name}(docs):
@@ -169,5 +167,4 @@ if {argument}:
 else:
     variable = ""
 """
-        return code
 

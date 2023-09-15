@@ -13,7 +13,7 @@ from demogpt.plan.chains.task_chains import TaskChains
 
 def init(title=""):
     if title:
-        return IMPORTS_CODE_SNIPPET + f"\nst.title({title})\n"
+        return f"{IMPORTS_CODE_SNIPPET}\nst.title({title})\n"
     return IMPORTS_CODE_SNIPPET
 
 
@@ -90,7 +90,7 @@ else:
 
     temperature = 0 if templates.get("variety", "False") == "False" else 0.7
 
-    code = f"""\n
+    return f"""\n
 def {signature}:
     chat = ChatOpenAI(
         model="gpt-3.5-turbo-16k",
@@ -111,7 +111,6 @@ def {signature}:
 {function_call}               
 
 """
-    return code
 
 
 def runThread(proc):

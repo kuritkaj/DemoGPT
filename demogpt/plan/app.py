@@ -33,8 +33,7 @@ def generate_response(txt, title):
     Yields:
         dict: A dictionary containing response information.
     """
-    for data in agent(txt, title):
-        yield data
+    yield from agent(txt, title)
     
 def initCode():
     if "code" not in st.session_state:
@@ -99,7 +98,7 @@ with st.form("a", clear_on_submit=True):
     
 def kill():
     if st.session_state["pid"] != -1:
-        logging.info(f"Terminating the previous applicaton ...")
+        logging.info("Terminating the previous applicaton ...")
         try:
             os.kill(st.session_state["pid"], signal.SIGTERM)
         except Exception as e:

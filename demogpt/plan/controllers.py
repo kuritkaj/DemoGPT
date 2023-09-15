@@ -18,24 +18,23 @@ def checkDTypes(tasks):
         input_data_type = task["input_data_type"]
         output_data_type = task["output_data_type"]
         input_key = task["input_key"]
-        
+
         if name not in TASK_TYPE2_TASK:
             feedback += f"There is no task with a name {name}.Please find another way.\n"
             continue
-        
+
         reference = TASK_TYPE2_TASK[name]
         reference_input = reference["input_data_type"]
         reference_output = reference["output_data_type"]
-        
+
         if task["step"] == 1:
             if input_key != "none":
                 feedback += f"Since {name} is the first task, its input data type is supposed to be none but it is {input_key}.Please find another way.\n"
-        
-        # Check input data types
+
         elif reference_input.startswith("*"):
             reference_input = reference_input.replace("*", "")
             if isinstance(input_key,str):
-                if input_data_type != reference_input and input_data_type != "none":
+                if input_data_type not in [reference_input, "none"]:
                     feedback += f"""
                     {name} expects all inputs as {reference_input} or none but the data type of {input_key} is {input_data_type} not {reference_input}. Please find another way.\n
                     """
@@ -49,15 +48,15 @@ def checkDTypes(tasks):
             feedback += f"""
             {name} expects all inputs as {reference_input} but the data type of {input_key} is {input_data_type} not {reference_input}. Please find another way.\n
             """
-            
+
         # Check output data types
         if output_data_type != reference_output:
             feedback += f"""
             {name} should output in {reference_output} data type but it is {output_data_type} not {reference_output}. Please find another way.\n
             """
-        
+
     valid = len(feedback) == 0
-    
+
     return {
         "feedback": feedback,
         "valid": valid
@@ -70,18 +69,17 @@ def checkPromptTemplates(templates,task):
     inputs = task["input_key"]
     if inputs == "none":
         inputs = []
-    else:
-        if isinstance(inputs, str):
-            if inputs.startswith("["):
-                inputs = inputs[1:-1]
-            inputs = [var.strip() for var in inputs.split(",")]
-    feedback = ""
-    for input_key in inputs:
-        if f"{{{input_key}}}" not in templates:
-            feedback += f"{{{input_key}}} is not included in any of the templates. Please add it.\n"
-    
-    valid = len(feedback) == 0
-    
+    elif isinstance(inputs, str):
+        if inputs.startswith("["):
+            inputs = inputs[1:-1]
+        inputs = [var.strip() for var in inputs.split(",")]
+    feedback = "".join(
+        f"{{{input_key}}} is not included in any of the templates. Please add it.\n"
+        for input_key in inputs
+        if f"{{{input_key}}}" not in templates
+    )
+    valid = not feedback
+
     return {
         "feedback":feedback,
         "valid":valid

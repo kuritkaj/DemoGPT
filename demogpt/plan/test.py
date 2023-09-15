@@ -43,7 +43,7 @@ class TestDemoGPT(unittest.TestCase):
     @classmethod
     def writeFinalToFile(cls,res,instruction):
         with open(f"test_final_{TestDemoGPT.TEST_INDEX}.py","w") as f:
-            f.write("#"+instruction+"\n")
+            f.write(f"#{instruction}" + "\n")
             f.write(res)
             f.flush()
 
@@ -120,22 +120,21 @@ class TestDemoGPT(unittest.TestCase):
         task_list = Chains.tasks(instruction=instruction, plan=plan)
 
         self.writeToFile("TASK LIST",json.dumps(task_list, indent=4),instruction)
-        
+
         task_controller_result = Chains.taskController(tasks=task_list)
-        
+
         self.writeToFile("TASK CONTROLLER RESULT",json.dumps(task_controller_result, indent=4),instruction)
         for _ in range(TestDemoGPT.REFINE_ITERATIONS):
-            if not task_controller_result["valid"]:
-                task_list = Chains.refineTasks(instruction=instruction, tasks=task_list, feedback = task_controller_result["feedback"])
-                self.writeToFile("REFINED TASK LIST",json.dumps(task_list, indent=4),instruction)
-                task_controller_result = Chains.taskController(tasks=task_list)
-            else:
+            if task_controller_result["valid"]:
                 break
-        
+
+            task_list = Chains.refineTasks(instruction=instruction, tasks=task_list, feedback = task_controller_result["feedback"])
+            self.writeToFile("REFINED TASK LIST",json.dumps(task_list, indent=4),instruction)
+            task_controller_result = Chains.taskController(tasks=task_list)
             self.writeToFile("FEEDBACK",task_controller_result["feedback"],instruction)
-            
-        
-    
+
+
+
         code_snippets = utils.init(title)
 
         self.writeToFile("CODE SNIPPETS","",instruction)
@@ -153,9 +152,9 @@ class TestDemoGPT(unittest.TestCase):
         
         self.writeToFile("COMBINED CODE",code_snippets,instruction)
         """
-        
+
         final_code = Chains.final(draft_code=code_snippets)
-        
+
         self.writeFinalToFile(final_code,instruction)
 
     def test_all(self):

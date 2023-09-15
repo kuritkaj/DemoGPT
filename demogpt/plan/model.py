@@ -67,9 +67,9 @@ class DemoGPT:
             "message": "Tasks have been generated.",
             "tasks": task_list,
         }
-        
+
         sleep(1)
-        
+
         yield {
             "stage": "task",
             "completed": True,
@@ -77,16 +77,15 @@ class DemoGPT:
             "done": False,
             "message": "Tasks are being controlled."
         }
-        
+
         task_controller_result = Chains.taskController(tasks=task_list)
-        
+
         for _ in trange(self.max_steps):
-            if not task_controller_result["valid"]:
-                task_list = Chains.refineTasks(instruction=instruction, tasks=task_list, feedback = task_controller_result["feedback"])
-                task_controller_result = Chains.taskController(tasks=task_list)
-            else:
+            if task_controller_result["valid"]:
                 break
-        
+
+            task_list = Chains.refineTasks(instruction=instruction, tasks=task_list, feedback = task_controller_result["feedback"])
+            task_controller_result = Chains.taskController(tasks=task_list)
         code_snippets = init(title)
 
         sleep(1)
@@ -115,7 +114,7 @@ class DemoGPT:
             }
 
         sleep(1)
-        
+
         yield {
             "stage": "draft",
             "completed": False,
@@ -123,12 +122,12 @@ class DemoGPT:
             "done": False,
             "message": "Code snippets are being combined...",
         }
-        
+
         draft_code = Chains.draft(instruction=instruction,
                                   code_snippets=code_snippets,
                                   plan=plan
                                   )
-        
+
         yield {
             "stage": "draft",
             "completed": True,
